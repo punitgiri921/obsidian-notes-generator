@@ -399,6 +399,8 @@ class App(ctk.CTk):
             notes = client.generate_notes(
                 transcript, system_prompt, progress_callback=ai_progress
             )
+            if not notes or not notes.strip():
+                raise RuntimeError("Failed to generate notes: AI model returned an empty response.")
             self._log("✓ Notes generated successfully")
 
             self._update_progress(0.85, "Saving note...")
@@ -441,8 +443,8 @@ class App(ctk.CTk):
             images_b64 = load_document_images_b64(file_path)
             self._log(f"✓ Rendered {len(images_b64)} page(s) at high resolution")
 
-            self._update_progress(0.4, "Synthesizing with Azure OpenAI Vision (gpt-4o)...")
             client = AzureAIClient()
+            self._update_progress(0.4, f"Synthesizing with Azure OpenAI Vision ({client.vision_deployment})...")
             system_prompt = get_handwritten_system_prompt()
 
             def vision_progress(msg):
@@ -451,6 +453,8 @@ class App(ctk.CTk):
             notes = client.generate_notes_from_images(
                 images_b64, system_prompt, progress_callback=vision_progress
             )
+            if not notes or not notes.strip():
+                raise RuntimeError("Failed to generate notes: AI model returned an empty response.")
             self._log("✓ Notes and Mermaid diagrams synthesized successfully")
 
             self._update_progress(0.85, "Saving note...")

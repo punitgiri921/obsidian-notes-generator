@@ -478,7 +478,10 @@ def ensure_clickable_toc(notes: str) -> str:
         return notes
 
     # Check if a TOC block already exists
-    toc_pattern = re.compile(r'###\s*📑?\s*Table of Contents.*?(?=\n##|\Z)', re.DOTALL | re.IGNORECASE)
+    toc_pattern = re.compile(
+        r'###\s*📑?\s*(?:Clickable\s*)?Table of Contents.*?(?=\n###|\n##|\Z)',
+        re.DOTALL | re.IGNORECASE
+    )
     if toc_pattern.search(notes):
         return toc_pattern.sub(toc + '\n\n', notes)
 

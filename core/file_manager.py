@@ -91,6 +91,8 @@ def merge_content_with_frontmatter(
     """
 
     stripped = notes.lstrip()
+    if not stripped:
+        raise ValueError("Cannot format empty note content.")
 
     if stripped.startswith('---'):
         parts = stripped.split('---', 2)
@@ -147,8 +149,11 @@ def save_note(
         Path to the created file.
 
     Raises:
+        ValueError: If notes content is empty.
         OSError: If the file cannot be written.
     """
+    if not notes or not notes.strip():
+        raise ValueError("Cannot save empty notes: Note content was not generated properly.")
 
     # Ensure folder exists
     folder.mkdir(parents=True, exist_ok=True)
