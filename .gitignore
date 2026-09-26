@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/
+venv/
+config.json
+scratch_test_output/
+*.pdf
+*.egg-info/
+dist/
+build/
