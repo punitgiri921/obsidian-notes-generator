@@ -54,14 +54,29 @@ SYSTEM_PROMPT = dedent("""\
     | **Core Competencies** | `[Skill 1]`, `[Skill 2]`, `[Skill 3]` |
     | **Target Tools / Tech** | `[e.g. ADF, Azure SQL, VS Code, Fabric Lakehouse, Python venv, etc.]` |
 
-    ### 3. 🔗 Related Topics & Concept Graph (Obsidian [[WikiLinks]])
+    ### 3. 📑 Clickable Table of Contents
+    Provide a fully clickable Table of Contents linking directly to every section in this note using Obsidian's internal heading link syntax:
+    - [[#🔗 Related Topics & Concept Graph]]
+    - [[#1. Topic Name]]
+      - [[#Sub-topic A]]
+      - [[#Sub-topic B]]
+    - [[#2. Next Topic Name]]
+    - [[#🧠 Quick Reference & Cheat Sheet]]
+    - [[#❓ Active Recall & Practice Questions]]
+    - [[#🎯 Summing Up]]
+
+    CRITICAL TOC RULES:
+    - The Table of Contents MUST be fully clickable using Obsidian `[[#Exact Heading Title]]` format.
+    - NEVER use generic placeholders like `[[#Section 1]]` or `[[#Topic 1]]`! You MUST list the actual heading titles from this note.
+
+    ### 4. 🔗 Related Topics & Concept Graph (Obsidian [[WikiLinks]])
     Provide a curated list of related concepts formatted as Obsidian `[[WikiLinks]]`. These link into the user's Obsidian Knowledge Graph:
     - [[Related Concept 1]] — 1-line description of how it connects
     - [[Related Concept 2]] — 1-line description of how it connects
     - [[Related Tool or Service]] — 1-line description of how it connects
     - [[Underlying Architecture]] — 1-line description of how it connects
 
-    ### 4. 📘 Deep Dive Study Notes (CS50 Pedagogical Style)
+    ### 5. 📘 Deep Dive Study Notes (CS50 Pedagogical Style)
     Do NOT use generic boilerplate headers like "Key Concepts" or "Step-by-Step Procedures".
     Instead, break down the transcript into natural, topic-driven narrative sections:
     `## [Specific Topic / Sub-Chapter Name]`
@@ -97,9 +112,15 @@ SYSTEM_PROMPT = dedent("""\
     - **CRITICAL MERMAID.JS SYNTAX RULES (PREVENT PARSER CRASHES)**:
       - When visualizing architectures, workflows, or data pipelines, use ```mermaid code blocks.
       - **ALWAYS QUOTE NODE LABELS**: Every node label MUST be enclosed in double quotes: `node_id["Label text here"]`. NEVER write `node_id[Label text]` without quotes!
-      - **NO UNQUOTED BRACKETS**: Never put raw square brackets `[` `]` or parentheses `(` `)` inside node labels. Write `A["courses: 'H', 'M', 'P', 'CS'"]` instead of `A[courses: ['H','M']]`.
-      - **USE VALID CONNECTORS**: Always use `-->` or `-->|"label"|`. NEVER use `->`.
-      - **DO NOT FORCE CODE INTO MERMAID**: If a concept is code execution (like list operations or string splitting), use a ````python code block. Only use Mermaid for true visual workflows, pipelines, and state diagrams.
+      - **ARROW LABELS (EDGE LABELS)**:
+        - Use simple plain text without quotes: `-->|label text|` or `-- "label text" -->`.
+        - ❌ NEVER PUT QUOTES INSIDE PIPES: `-->|"label"|` is INVALID syntax and crashes Mermaid!
+        - ❌ NEVER PUT CODE EXPRESSIONS, PARENTHESES, OR BRACKETS INSIDE EDGE LABELS:
+          Do NOT write `-->|list(s)|` or `-->|pd.DataFrame(list, columns=[...])|`.
+          Instead write simple conceptual text: `-->|convert to list|` or `-->|build DataFrame|`.
+      - **NO UNQUOTED BRACKETS IN NODES**: Never put raw square brackets `[` `]` inside node text.
+      - **USE VALID CONNECTORS**: Always use `-->` or `-->|label|`. NEVER use single `->`.
+      - **DO NOT FORCE CODE INTO MERMAID**: If a concept is code execution (like list operations or string splitting), use a standalone ````python code block. Only use Mermaid for true visual workflows, pipelines, architectures, and state diagrams.
 
     - **Obsidian Callouts**: Use Obsidian callouts to highlight crucial insights:
       > [!NOTE] Architecture or concept insight
@@ -182,7 +203,12 @@ HANDWRITTEN_SYSTEM_PROMPT = dedent("""\
        - When handwritten notes contain flowcharts, process steps, database relationships, decision trees, or system architecture sketches, convert them into valid **Mermaid.js** code blocks (` ```mermaid ... ``` `).
        - **RULE 1: ALWAYS QUOTE NODE LABELS**: Every node text label MUST be enclosed in double quotes: `node_id["Label text here"]`. NEVER write `node_id[Label text]` without double quotes!
        - **RULE 2: NO UNQUOTED BRACKETS**: Never put raw square brackets `[` `]` or parentheses `(` `)` inside node labels. For example, write `A["courses: 'H', 'M', 'P', 'CS'"]` instead of `A[courses: ['H','M']]`.
-       - **RULE 3: USE VALID ARROWS**: Always use `-->` or `-->|"label"|`. NEVER use single `->`.
+       - **RULE 3: ARROW & EDGE LABELS**:
+         - Always use `-->` or `-->|label|`. NEVER use single `->`.
+         - ❌ NEVER PUT DOUBLE QUOTES INSIDE PIPES: write `-->|label text|` or `-- "label text" -->`. NEVER write `-->|"label text"|` as it crashes Mermaid!
+         - ❌ NEVER PUT CODE EXPRESSIONS, BRACKETS, OR PARENTHESES INSIDE EDGE LABELS:
+           Do NOT write `-->|list(s)|` or `-->|pd.DataFrame(list, columns=[...])|`.
+           Write simple conceptual text: `-->|convert to list|` or `-->|create DataFrame|`.
        - **RULE 4: SIMPLE NODE IDs**: Use simple alphanumeric IDs: `A`, `B`, `Node1`, `Init_List`. No spaces or code syntax in IDs.
        - **RULE 5: DO NOT FORCE CODE INTO MERMAID**: If a concept is code execution (like string splitting or dictionary lookup), present it as a ````python code block. Only use Mermaid for true visual workflows, pipelines, architectures, or state diagrams.
 
@@ -218,13 +244,28 @@ HANDWRITTEN_SYSTEM_PROMPT = dedent("""\
     | **Core Competencies** | `[Skill 1]`, `[Skill 2]`, `[Skill 3]` |
     | **Document Type** | `Handwritten Notes / Technical Sketches` |
 
-    ### 3. 🔗 Related Topics & Concept Graph (Obsidian [[WikiLinks]])
+    ### 3. 📑 Clickable Table of Contents
+    Provide a fully clickable Table of Contents that links directly to every major section in this note using Obsidian internal heading links:
+    - [[#🔗 Related Topics & Concept Graph]]
+    - [[#1. Topic Name]]
+      - [[#Sub-topic A]]
+      - [[#Sub-topic B]]
+    - [[#2. Next Topic Name]]
+    - [[#🧠 Quick Reference & Cheat Sheet]]
+    - [[#❓ Active Recall & Practice Questions]]
+    - [[#🎯 Summing Up]]
+
+    CRITICAL TOC RULES:
+    - The Table of Contents MUST be fully clickable using Obsidian `[[#Exact Heading Title]]` format.
+    - NEVER use generic placeholders like `[[#Section 1]]` or `[[#Topic 1]]`! You MUST list the actual heading titles generated in section 5.
+
+    ### 4. 🔗 Related Topics & Concept Graph (Obsidian [[WikiLinks]])
     Provide a curated list of related concepts formatted as Obsidian `[[WikiLinks]]`:
     - [[Related Concept 1]] — 1-line connection
     - [[Related Concept 2]] — 1-line connection
     - [[Related Concept 3]] — 1-line connection
 
-    ### 4. 📘 Deep Dive Synthesized Notes (CS50 Pedagogical Style)
+    ### 5. 📘 Deep Dive Synthesized Notes (CS50 Pedagogical Style)
     Break down the notes into thematic sub-chapters:
     `## [Topic / Concept Name]`
     `### [Sub-topic or Procedure]`
@@ -263,11 +304,45 @@ def get_handwritten_system_prompt() -> str:
     return HANDWRITTEN_SYSTEM_PROMPT
 
 
+def sanitize_edge_label(arrow_token: str) -> str:
+    """
+    Sanitize edge/arrow labels in Mermaid syntax:
+    - Strips quotes inside pipe delimiters: -->| "label" | becomes -->|label|
+    - Converts unsafe characters inside edge labels ([ ] -> #91; #93;, ( ) -> #40; #41;)
+    - Ensures clean syntax without crashing Mermaid's lexer.
+    """
+    m = re.search(r'\|\s*(.*?)\s*\|', arrow_token)
+    if not m:
+        return arrow_token
+    pre = arrow_token[:m.start()]
+    label = m.group(1).strip()
+    post = arrow_token[m.end():]
+
+    # Strip surrounding quotes
+    while (label.startswith('"') and label.endswith('"')) or (label.startswith("'") and label.endswith("'")):
+        if len(label) >= 2:
+            label = label[1:-1].strip()
+        else:
+            break
+
+    # Strip quotes inside label
+    label = label.replace('"', "'")
+    # Replace parentheses, brackets, and braces with safe HTML character codes
+    label = label.replace('[', '#91;').replace(']', '#93;')
+    label = label.replace('(', '#40;').replace(')', '#41;')
+    label = label.replace('{', '#123;').replace('}', '#125;')
+
+    if not label:
+        return pre.replace('|', '').rstrip() + ' ' + post.replace('|', '').lstrip()
+    return f'{pre}|{label}|{post}'
+
+
 def sanitize_mermaid_line(line: str) -> str:
     """
     Sanitize a single line of Mermaid flowchart / graph syntax:
     - Converts invalid single '->' arrows to '-->'
     - Ensures all node labels are enclosed in double quotes: NodeId["label"]
+    - Strips invalid quotes inside edge labels (-->| "label" | -> -->|label|)
     - Converts problematic inner brackets [ ] to HTML entities #91; and #93;
     - Converts problematic inner parens ( ) to HTML entities #40; and #41;
     - Converts problematic inner braces { } to HTML entities #123; and #125;
@@ -285,14 +360,14 @@ def sanitize_mermaid_line(line: str) -> str:
 
     # 2. Tokenize by arrows or connectors
     arrow_pattern = re.compile(
-        r'(\s*(?:-->|---|==>|-.->|--\s*\|.*?\|\s*-->|-->\|.*?\|)\s*)'
+        r'(\s*(?:-->\s*\|.*?\|\s*|--\s*\|.*?\|\s*-->|-->\|.*?\||-->|---|==>|-.->)\s*)'
     )
     tokens = arrow_pattern.split(line)
 
     sanitized_tokens = []
     for token in tokens:
         if arrow_pattern.match(token):
-            sanitized_tokens.append(token)
+            sanitized_tokens.append(sanitize_edge_label(token))
             continue
 
         # Check special shapes first (stadium, cylinder, circle, subroutine)
@@ -360,15 +435,74 @@ def sanitize_mermaid(text: str) -> str:
     return pattern.sub(replacer, text)
 
 
+def generate_clickable_toc(notes: str) -> str:
+    """
+    Scan markdown notes and extract all H2 and H3 headings to construct
+    a fully clickable Obsidian Table of Contents using `[[#Heading]]`.
+    """
+    lines = notes.splitlines()
+    toc_entries = []
+
+    ignore_titles = {
+        'table of contents', 'contents', 'metadata', 'executive summary',
+        'deep dive study notes', 'deep dive synthesized notes'
+    }
+
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith('## ') and not stripped.startswith('### '):
+            h_text = stripped[3:].strip()
+            clean_h = re.sub(r'\[\[(.*?)\]\]', r'\1', h_text).replace('**', '').replace('*', '').strip()
+            if clean_h.lower() not in ignore_titles and not clean_h.startswith('📑'):
+                toc_entries.append(f"- [[#{clean_h}]]")
+        elif stripped.startswith('### ') and not stripped.startswith('#### '):
+            h_text = stripped[4:].strip()
+            clean_h = re.sub(r'\[\[(.*?)\]\]', r'\1', h_text).replace('**', '').replace('*', '').strip()
+            if clean_h.lower() not in ignore_titles and not clean_h.startswith('📑'):
+                toc_entries.append(f"  - [[#{clean_h}]]")
+
+    if not toc_entries:
+        return ""
+
+    return "### 📑 Table of Contents\n" + "\n".join(toc_entries)
+
+
+def ensure_clickable_toc(notes: str) -> str:
+    """
+    Ensure the notes contain a comprehensive, clickable Obsidian Table of Contents.
+    If a placeholder or partial TOC exists, replaces it with the dynamic one.
+    If no TOC exists, injects it before the first content section.
+    """
+    toc = generate_clickable_toc(notes)
+    if not toc:
+        return notes
+
+    # Check if a TOC block already exists
+    toc_pattern = re.compile(r'###\s*📑?\s*Table of Contents.*?(?=\n##|\Z)', re.DOTALL | re.IGNORECASE)
+    if toc_pattern.search(notes):
+        return toc_pattern.sub(toc + '\n\n', notes)
+
+    # Insert before the first major content heading (## ) or after metadata card
+    m = re.search(r'\n(##\s+[^\n]+)', notes)
+    if m:
+        idx = m.start()
+        return notes[:idx] + f'\n\n{toc}\n\n' + notes[idx+1:]
+
+    return notes + f'\n\n{toc}\n'
+
+
 def sanitize_notes(notes: str) -> str:
     """
     Sanitize generated notes:
-    - Fixes any Mermaid syntax issues (quotes node labels, converts brackets to entities).
+    - Fixes any Mermaid syntax issues (quotes node labels, cleans edge labels, converts brackets to entities).
+    - Injects a fully clickable, dynamic Table of Contents with real document headings.
     - Ensures clean Markdown encoding.
     """
     if not notes:
         return ""
-    return sanitize_mermaid(notes)
+    notes = sanitize_mermaid(notes)
+    notes = ensure_clickable_toc(notes)
+    return notes
 
 
 def extract_title_from_notes(notes: str, fallback: str = "Notes") -> str:
