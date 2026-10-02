@@ -96,6 +96,24 @@ flowchart TD
 
 ---
 
+## 📊 Token Usage & Azure OpenAI Monitoring Telemetry
+
+The application is engineered for production-grade token efficiency and quota observability under Azure OpenAI deployments (e.g., `gpt-5-mini`). The monitoring dashboard below highlights real-world usage metrics, request throughput, token distributions, and latency profiles captured during intensive note synthesis batches:
+
+![Token Usage & Azure OpenAI Monitoring Telemetry](assets/azure_openai_telemetry.png)
+
+### Production Telemetry & Metrics Breakdown
+
+| Metric Dimension | Observed Telemetry | Engineering Impact |
+| :--- | :--- | :--- |
+| **Total Requests** | **429 requests** | Sustained end-to-end execution without quota exhaustion or crashes. |
+| **Total Token Volume** | **4.11M tokens** (~9,586 avg / request) | High-density synthesis delivering deep, multi-section CS50 notes. |
+| **Prompt vs. Completion** | **1.65M prompt** vs. **2.46M completion** tokens | Highly asymmetric ratio reflecting detailed pedagogical output generation. |
+| **Paced Request Spikes** | Controlled clusters across local processing windows | Rate-limit pacing (6s delays) and exponential backoff keep requests below TPM ceilings. |
+| **Latency Profile** | Low time-to-first-byte (<2s typical) with stable final byte streaming | Responsive processing pipeline with resilient Azure OpenAI connectivity. |
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Environment Setup
@@ -223,12 +241,15 @@ class TreeNode:
 ```text
 Video_to_Notes_Generator/
 ├── main.py                  # Application entry point; validates settings & launches GUI
+├── run.bat                  # One-click Windows launch script
 ├── requirements.txt         # Production dependencies with pinned minimum versions
 ├── .env.example             # Configuration template for Azure OpenAI credentials
 ├── .env                     # Local environment file containing API keys (git-ignored)
 ├── config.json              # Persistent user preferences, e.g. last vault path (git-ignored)
 ├── .gitignore               # Ignores secrets, caches, virtual environments, and test files
 ├── README.md                # Comprehensive documentation, setup guide, and architectural manual
+├── assets/                  # Telemetry dashboards, architecture diagrams, and visual media
+│   └── azure_openai_telemetry.png
 ├── core/                    # Backend engine for ingestion, vision, LLM, and file operations
 │   ├── __init__.py          # Marks core as an importable Python package
 │   ├── ai_client.py         # Azure OpenAI client, Envelope Document Assembly, and 429 retries
