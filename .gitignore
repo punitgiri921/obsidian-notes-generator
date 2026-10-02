@@ -11,3 +11,6 @@ scratch_test_output/
 *.egg-info/
 dist/
 build/
+desktop.ini
+*.code-workspace
+.vscode/

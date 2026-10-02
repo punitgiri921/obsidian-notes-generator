@@ -21,6 +21,9 @@ from core.transcript import (
     extract_video_id,
     get_transcript,
     clean_transcript,
+    extract_playlist_id,
+    is_playlist_url,
+    get_playlist_videos,
 )
 from core.image_processor import (
     is_supported_document,
@@ -110,7 +113,7 @@ class App(ctk.CTk):
         self.youtube_frame = ctk.CTkFrame(self.input_container, fg_color="transparent")
         url_label = ctk.CTkLabel(
             self.youtube_frame,
-            text="YouTube URL",
+            text="YouTube Video or Playlist URL",
             font=ctk.CTkFont(size=13, weight="bold"),
             anchor="w",
         )
@@ -118,7 +121,7 @@ class App(ctk.CTk):
 
         self.url_entry = ctk.CTkEntry(
             self.youtube_frame,
-            placeholder_text="https://www.youtube.com/watch?v=...",
+            placeholder_text="https://www.youtube.com/watch?v=... or playlist?list=...",
             height=40,
             font=ctk.CTkFont(size=13),
         )
@@ -335,12 +338,13 @@ class App(ctk.CTk):
         if "YouTube" in mode:
             url = self.url_entry.get().strip()
             if not url:
-                self._set_status("⚠️ Please enter a YouTube URL.", "red")
+                self._set_status("Please enter a YouTube URL.", "red")
                 return
 
             self._start_processing()
+            target_fn = self._process_playlist if is_playlist_url(url) else self._process_video
             threading.Thread(
-                target=self._process_video,
+                target=target_fn,
                 args=(url, folder_path),
                 daemon=True,
             ).start()
@@ -421,6 +425,88 @@ class App(ctk.CTk):
 
             self._update_progress(1.0, "✅ Notes created successfully!")
             self._finish_success()
+
+        except Exception as e:
+            error_msg = str(e)
+            self._log(f"\n❌ Error: {error_msg}")
+            self._update_progress(0, f"❌ Failed: {error_msg[:80]}")
+            self._finish_error()
+
+
+    def _process_playlist(self, url: str, folder: Path):
+        """Batch YouTube playlist processing pipeline."""
+        import time
+        try:
+            self._update_progress(0.02, "Inspecting YouTube playlist...")
+            pl_id = extract_playlist_id(url)
+            self._log(f"📋 Playlist ID: {pl_id}")
+            
+            videos = get_playlist_videos(url)
+            total = len(videos)
+            self._log(f"📋 Found {total} videos in playlist!")
+            for idx, v in enumerate(videos, 1):
+                self._log(f"   {idx}. {v['title']}")
+
+            client = AzureAIClient()
+            system_prompt = get_system_prompt()
+            saved_paths = []
+
+            for i, v in enumerate(videos, 1):
+                vid = v["video_id"]
+                v_title = v["title"]
+                v_url = v["url"]
+                
+                pct_start = 0.05 + ((i - 1) / total) * 0.9
+                self._update_progress(pct_start, f"[{i}/{total}] Fetching: {v_title}...")
+                self._log(f"\n🎬 Video {i}/{total}: {v_title}")
+
+                try:
+                    raw_tx = get_transcript(vid)
+                    self._log(f"  ✓ Transcript fetched ({len(raw_tx):,} chars)")
+                except Exception as tx_err:
+                    self._log(f"  ⚠️ Skipped (no transcript available): {tx_err}")
+                    continue
+
+                clean_tx = clean_transcript(raw_tx)
+
+                self._update_progress(pct_start + (0.5 / total), f"[{i}/{total}] Generating notes with AI...")
+                def ai_progress(msg):
+                    self._log(f"    → {msg}")
+
+                notes = client.generate_notes(
+                    clean_tx, system_prompt, progress_callback=ai_progress
+                )
+                if not notes or not notes.strip():
+                    self._log(f"  ⚠️ AI returned empty note for video {i}, skipping.")
+                    continue
+
+                # Clean filename with zero-padded index for nice sorting in Obsidian
+                extracted_title = extract_title_from_notes(notes, fallback=v_title)
+                safe_name = make_safe_filename(f"{i:02d}_{v_title}", fallback=f"{i:02d}_{vid}")
+
+                filepath = save_note(
+                    folder=folder,
+                    filename=safe_name,
+                    notes=notes,
+                    video_url=v_url,
+                    video_id=vid,
+                    source_type="YouTube Playlist",
+                )
+                saved_paths.append(filepath)
+                self._log(f"  ✓ Saved note: {filepath.name}")
+
+                # Rate-limit cooldown between videos to prevent Azure TPM 429 errors
+                if i < total:
+                    self._log("  ⏳ Pacing 6s for Azure TPM replenishment...")
+                    time.sleep(6)
+
+            if saved_paths:
+                self._result_filepath = saved_paths[0]
+                self._update_progress(1.0, f"🎉 All {len(saved_paths)} playlist notes created successfully!")
+                self._finish_success()
+                self._log(f"\n✅ Completed! {len(saved_paths)}/{total} markdown files saved in:\n{folder}")
+            else:
+                raise RuntimeError("No notes could be generated from this playlist.")
 
         except Exception as e:
             error_msg = str(e)

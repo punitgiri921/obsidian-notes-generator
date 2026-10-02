@@ -470,47 +470,53 @@ class AzureAIClient:
             PART A: The Executive Header (Top of note)
             1. YAML Frontmatter:
                ---
-               title: "[Descriptive professional title]"
-               topic: "[Domain/Topic]"
+               title: "[Descriptive professional title strictly based on the outline above]"
+               topic: "[Domain/Topic strictly based on the outline above]"
                difficulty: "[Beginner | Intermediate | Advanced]"
                skills:
-                 - "[Skill 1]"
-                 - "[Skill 2]"
-                 - "[Skill 3]"
+                 - "[Skill 1 from outline]"
+                 - "[Skill 2 from outline]"
+                 - "[Skill 3 from outline]"
                tags:
                  - "[kebab-case-tag-1]"
                  - "[kebab-case-tag-2]"
                ---
-            2. Document Title: # [Title]
+            2. Document Title: # [Title strictly based on the outline above]
             3. Executive Summary Card:
                > [!ABSTRACT] Executive Summary
-               > [A concise 2-3 sentence overview explaining what is covered and key problems solved]
+               > [A concise 2-3 sentence overview explaining what is covered in the outline above and key problems solved]
                | Metadata | Details |
                |---|---|
                | **Domain / Category** | `[Topic]` |
                | **Difficulty** | `[Difficulty]` |
                | **Core Competencies** | `[Key skills comma-separated]` |
                | **Target Tools / Tech** | `[Target tools/tech comma-separated]` |
-            4. Clickable Table of Contents linking to major section headings:
-               ### 📑 Table of Contents
-               - [[#Section Heading 1]]
-               - [[#Section Heading 2]]
-               (Use exact Obsidian `[[#Heading Title]]` syntax matching headings in the outline)
-            5. Related Topics & Concept Graph with Obsidian `[[WikiLinks]]`:
+            4. Related Topics & Concept Graph with Obsidian `[[WikiLinks]]`:
                ### 🔗 Related Topics & Concept Graph
-               - [[Topic 1]] — brief connection
-               - [[Topic 2]] — brief connection
+               - [[Concept 1]] — brief connection
+               - [[Concept 2]] — brief connection
+               - [[Concept 3]] — brief connection
+
+            CRITICAL CONSTRAINTS FOR PART A:
+            - Ground the title, topic, metadata, and summary 100% strictly in the Topics listed above.
+            - DO NOT invent tools or concepts not mentioned in the outline.
+            - DO NOT generate a Table of Contents (a dynamic Table of Contents is injected automatically).
+            - DO NOT generate ANY section headings (##), tutorials, code blocks, or body content in PART A! All body content lives in the deep dive sections.
+            - Stop immediately after the Related Topics & Concept Graph and output <<<BODY_PLACEHOLDER>>>.
 
             PART B: The Closing Synthesis (Bottom of note)
-            6. ## 🧠 Quick Reference & Cheat Sheet
-               A consolidated markdown table of key syntax, hotkeys, or commands covered.
-            7. ## ❓ Active Recall & Practice Questions
+            5. ## 🧠 Quick Reference & Cheat Sheet
+               A consolidated markdown table of key syntax, hotkeys, or commands covered in the topics above.
+            6. ## ❓ Active Recall & Practice Questions
                3 to 5 realistic conceptual/troubleshooting questions using Obsidian collapsible callouts `> [!question]-`:
                > [!question]- 1. [Clear Question Title]?
                > **Answer:**
                > [Concise, accurate answer explaining the concept, with code blocks if applicable]
-            8. ## 🎯 Summing Up
+            7. ## 🎯 Summing Up
                A bulleted 3-5 point wrap-up of essential mental models and takeaways.
+
+            CRITICAL CONSTRAINTS FOR PART B:
+            - Base all cheat sheets, commands, questions, and takeaways STRICTLY on the actual topics in the outline.
 
             Separate PART A and PART B with the exact marker:
             <<<BODY_PLACEHOLDER>>>
@@ -540,6 +546,12 @@ class AzureAIClient:
         else:
             header = envelope
             footer = ""
+
+        # Defensive cleanup: Ensure header contains only frontmatter, title, abstract card, and concept graph.
+        # If the LLM hallucinated any ## section headings in header, truncate right before the first ## heading.
+        m_extra_h2 = re.search(r'\n(##\s+[^\n]+)', header)
+        if m_extra_h2:
+            header = header[:m_extra_h2.start()].strip()
 
         deep_dive_body = "\n\n---\n\n".join(cleaned_sections)
         final_document = (
